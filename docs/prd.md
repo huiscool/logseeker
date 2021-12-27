@@ -38,7 +38,7 @@ logseeker: press h to enter help menu; press q to exit.
 3. 命令行输入
 
 按`: `进入命令行模式，此时下方显示冒号与光标，并显示用户输入的命令：
-!(命令行输入)[./3.png]
+![命令行输入](./3.png)
 按esc 退出命令行模式，并显示当前状态。
 
 4. 打开文件
