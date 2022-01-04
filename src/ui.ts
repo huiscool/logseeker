@@ -6,7 +6,7 @@ import { LogSet } from "./logset";
 import * as model from './model';
 
 export class LogSetDoc {
-    docID: string;
+    // docID: string;
 }
 
 // views 
