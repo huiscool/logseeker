@@ -14,12 +14,23 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
-    "commands": [
-      {
-        "command": "logseeker.helloWorld",
-        "title": "Hello World"
-      }
-    ]
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "log-sets-explorer",
+          "title": "Log Sets Explorer",
+          "icon": "resources/file-alt-regular.svg"
+        }
+      ]
+    },
+    "views": {
+      "log-sets-explorer": [
+        {
+          "id": "logsets",
+          "name": "Log Sets"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

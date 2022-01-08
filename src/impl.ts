@@ -1,8 +1,7 @@
 import * as model from './model';
-import * as event from './event';
 import { PathLike } from 'fs';
 
-export class LogSet implements model.ModelObject {
+export class LogSet  {
     name: string; //用户定义的LogSet名字
     srcs: Map<model.LogSourceID, model.LogSource>;
 
@@ -30,6 +29,7 @@ export class LogSet implements model.ModelObject {
     writeEntry(e: model.LogEntry): void {
         throw new Error("not implemented");
     }
+
 }
 
 // 单例，全局唯一
@@ -39,8 +39,5 @@ export class LogSets {
     constructor() {
         throw new Error("not implemented");
     }
-
-    register(h: event.EventHandler) {
-        throw new Error("not implemented");
-    }
+    
 }
