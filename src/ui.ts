@@ -2,43 +2,35 @@
 
 
 import { PathLike } from "fs";
-import { LogSet } from "./logset";
 import * as model from './model';
 
-export class LogSetDoc {
-    // docID: string;
-}
 
 // views 
 
-
-
-
-// commands
-
-function createLogSet(name: string) {
-
+export class LogSetsView {
+    setViews: LogSetView[];
+    sets: model.LogSets;
+    constructor(sets: model.LogSets) {
+        this.sets = sets;
+        throw new Error("not implemented");
+    }
 }
 
-function deleteLogSet(name: string) {
-
+export class LogSetView {
+    srcs: LogSourceView[];
+    constructor(set: model.LogSet) {
+       throw new Error("not implemented");
+    }
 }
 
-// 打开LogSet的一个虚拟文档，展示所有日志文件新append的日志条目
-function openLogSet(setName: string): LogSetDoc {
-    throw new Error("");
+export class LogSourceView {
+    constructor(src: model.LogSource) {
+        throw new Error("not implemented");
+    }
 }
 
-// 关闭虚拟文档
-function closeLogSet(docID: string) {
-}
-
-
-function addLogSourceInLogSet(setName: string, path: PathLike) {
-
-}
-
-function deleteLogSourceInLogSet(setName: string, srcID: model.LogSourceID) {
-
+// 文档
+export class LogSetDocView {
+    // docID: string;
 }
 

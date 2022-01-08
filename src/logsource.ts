@@ -4,7 +4,7 @@ import {nanoid} from 'nanoid';
 import { PathLike } from 'fs';
 import * as model from './model';
 
-export class FileLogSource {
+export class FileLogSource implements model.LogSource{
     id: string;
     constructor (pathLike: PathLike, id?: string) {
         this.id = id ? id : pathLike.toString() + nanoid(5);
