@@ -10,7 +10,7 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:logseeker.helloWorld"
+    "onView:logsets"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -33,13 +33,66 @@
     },
     "commands": [
       {
-        "command": "logsets.addlogset",
-        "title": "Add A New Log Set"
+        "command": "logsets.refresh",
+        "title": "Refress log sets"
       },
       {
-        
+        "command": "logsets.add-logset",
+        "title": "Add a new log set"
+      },
+      {
+        "command": "logset.del-logset",
+        "title": "Delete a log set"
+      },
+      {
+        "command": "logset.open-doc",
+        "title": "Open a virtual doc related to the log set"
+      },
+      {
+        "command": "logset.add-logsource",
+        "title": "Add and open a log source in a log set"
+      },
+      {
+        "command": "logsource.del-logsource",
+        "title": "Delete a log source in a log set"
       }
-    ]
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "logsets.refresh",
+          "when": "view == logsets",
+          "group": "navigation"
+        },
+        {
+          "command": "logsets.add-logset",
+          "when": "view == logsets",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "logset.del-logset",
+          "when": "view == logsets && viewItem == logset",
+          "group": "inline"
+        },
+        {
+          "command": "logset.open-doc",
+          "when": "view == logsets && viewItem == logset",
+          "group": "inline"
+        },
+        {
+          "command": "logset.add-logsource",
+          "when": "view == logsets && viewItem == logset",
+          "group": "inline"
+        },
+        {
+          "command": "logsource.del-logsource",
+          "when": "view == logsets && viewItem == logsource",
+          "group": "inline"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

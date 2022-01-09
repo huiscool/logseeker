@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import {basename  } from "path";
 
 
-type TreeNode = LogSet | LogSource;
+export type TreeNode = LogSet | LogSource;
 
 export class LogSetExplorer implements vscode.TreeDataProvider<TreeNode> {
     private emiter = new vscode.EventEmitter<TreeNode | null>();
@@ -18,7 +18,7 @@ export class LogSetExplorer implements vscode.TreeDataProvider<TreeNode> {
     }
 
     getChildren(element?: TreeNode): vscode.ProviderResult<TreeNode[]> {
-        return element ? element.getChildren() : this.model.logSets;
+        return element!==undefined ? element.getChildren() : this.model.logSets;
     }
 
     getParent(element: TreeNode): vscode.ProviderResult<TreeNode> {
@@ -65,6 +65,7 @@ export class LogSet extends vscode.TreeItem implements vscode.TextDocumentConten
             name,
             vscode.TreeItemCollapsibleState.Expanded,
         );
+        this.contextValue = "logset";
     }
 
     // ui
@@ -113,6 +114,7 @@ export class LogSource extends vscode.TreeItem {
             basename(uri.path),
             vscode.TreeItemCollapsibleState.None,
         );
+        this.contextValue = "logsource";
         this.model = this.parent.model;
     }
 
