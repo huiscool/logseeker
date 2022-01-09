@@ -19,7 +19,7 @@
         {
           "id": "log-sets-explorer",
           "title": "Log Sets Explorer",
-          "icon": "resources/file-alt-regular.svg"
+          "icon": "resources/view.svg"
         }
       ]
     },
@@ -34,27 +34,35 @@
     "commands": [
       {
         "command": "logsets.refresh",
-        "title": "Refress log sets"
+        "title": "Refress log sets",
+        "icon": "resources/refresh.svg"
       },
       {
         "command": "logsets.add-logset",
-        "title": "Add a new log set"
+        "title": "Add a new log set",
+        "icon": "resources/add-logset.svg"
       },
       {
         "command": "logset.del-logset",
-        "title": "Delete a log set"
+        "title": "Delete a log set",
+        "icon": "resources/del-logset.svg"
       },
       {
         "command": "logset.open-doc",
-        "title": "Open a virtual doc related to the log set"
+        "title": "Open a virtual doc related to the log set",
+        "icon": "resources/open-doc.svg"
+
       },
       {
         "command": "logset.add-logsource",
-        "title": "Add and open a log source in a log set"
+        "title": "Add and open a log source in a log set",
+        "icon": "resources/add-logsource.svg"
+
       },
       {
         "command": "logsource.del-logsource",
-        "title": "Delete a log source in a log set"
+        "title": "Delete a log source in a log set",
+        "icon": "resources/del-logsource.svg"
       }
     ],
     "menus": {
