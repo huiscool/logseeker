@@ -30,7 +30,16 @@
           "name": "Log Sets"
         }
       ]
-    }
+    },
+    "commands": [
+      {
+        "command": "logsets.addlogset",
+        "title": "Add A New Log Set"
+      },
+      {
+        
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

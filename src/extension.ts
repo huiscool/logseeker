@@ -26,10 +26,6 @@ class MyContext {
 		throw new Error("not implemented");
 	}
 
-	initView() {
-		throw new Error("not implemented");
-	}
-
 	activate() {
 		throw new Error("not implemented");
 	}
