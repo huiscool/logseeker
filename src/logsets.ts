@@ -5,16 +5,17 @@ import {basename  } from "path";
 export type TreeNode = LogSet | LogSource;
 
 export class LogSetExplorer implements vscode.TreeDataProvider<TreeNode> {
-    private emiter = new vscode.EventEmitter<TreeNode | null>();
-    readonly onDidChangeTreeData = this.emiter.event;
+    private emiter = new vscode.EventEmitter<TreeNode | null>(); //定义发射器；
+    readonly onDidChangeTreeData = this.emiter.event; //定义事件；
     constructor(
         private model: LogSetsModel,
     ) {
         model.bindRefresh(this.refresh);
     }
 
+
     refresh() {
-        this.emiter.fire(null);
+        this.emiter.fire(null); //发布事件；
     }
 
     getChildren(element?: TreeNode): vscode.ProviderResult<TreeNode[]> {
@@ -49,6 +50,10 @@ export class LogSetsModel {
             throw new Error(`cannot create log set with same name "${name}"`);
         }
         this.logSets.push(new LogSet(name, this));
+    }
+
+    delLogSet(name: string) {
+        this.logSets = this.logSets.filter((val)=>{val.name !== name;});
     }
 
 }
@@ -96,13 +101,17 @@ export class LogSet extends vscode.TreeItem implements vscode.TextDocumentConten
         src.open();
         this.addLogSource(src);
     }
+    // open a virtual doc.
+    openDoc() {
+
+    }
     // delete itself from logSetsModel.
     dispose(): void { }
 
 }
 
 export class LogSource extends vscode.TreeItem {
-    // 
+
     onEntryArrived?: vscode.Event<LogEntry[]>;
     readonly model: LogSetsModel;
 
@@ -122,9 +131,13 @@ export class LogSource extends vscode.TreeItem {
     // treeViews: logSource is a leaf treenode, so getChildren should return null.
     getChildren() { return null; }
     
-
+    // open file 
     open(): void {
+       throw new Error("not implemented");
+    }
 
+    close(): void {
+       throw new Error("not implemented");
     }
 
     // commands
