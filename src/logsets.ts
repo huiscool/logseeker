@@ -1,12 +1,15 @@
 import * as vscode from "vscode";
 import { basename } from "path";
+import * as rl from "readline";
+import { logSetSchema } from "./extension";
+import { debug } from "console";
 
 
 export type TreeNode = LogSet | LogSource;
 
 export class LogSetsExplorer implements vscode.TreeDataProvider<TreeNode>, vscode.TextDocumentContentProvider {
-    private onDidChangeTreeDataEmitter = new vscode.EventEmitter<TreeNode | null>();
-    private onDidChangeDocDataEmitter = new vscode.EventEmitter<vscode.Uri>();
+    readonly onDidChangeTreeDataEmitter = new vscode.EventEmitter<TreeNode | null>();
+    readonly onDidChangeDocDataEmitter = new vscode.EventEmitter<vscode.Uri>();
     readonly onDidChangeTreeData = this.onDidChangeTreeDataEmitter.event; //定义事件；
     readonly onDidChange = this.onDidChangeDocDataEmitter.event;
 
@@ -21,7 +24,7 @@ export class LogSetsExplorer implements vscode.TreeDataProvider<TreeNode>, vscod
     }
 
     getChildren(element?: TreeNode): vscode.ProviderResult<TreeNode[]> {
-        return element !== undefined ? element.getChildren() : this.model.logSets;
+        return element !== undefined ? element.getChildren() : Array.from(this.model.logSets.values());
     }
 
     getParent(element: TreeNode): vscode.ProviderResult<TreeNode> {
@@ -33,40 +36,40 @@ export class LogSetsExplorer implements vscode.TreeDataProvider<TreeNode>, vscod
     }
 
     provideTextDocumentContent(uri: vscode.Uri, token: vscode.CancellationToken): vscode.ProviderResult<string> {
-        throw new Error("not implemented");
+        let logset = this.model.logSets.get(uri.path);
+        if (!logset) {throw new Error(`cannot open uri ${uri.toString()}`);}
+        return logset.content();
     }
 
 }
 
 export class LogSetsModel {
-    logSets: LogSet[] = [];
+    public logSets: Map<string, LogSet> = new Map<string, LogSet>();
     explorer?: LogSetsExplorer;
 
     bindExplorer(explorer: LogSetsExplorer) {
         this.explorer = explorer;
     }
 
-    loadFrom(uri: vscode.Uri) {
-
-    }
-
     // commands
     addEmptyLogSet(name: string) {
-        if (this.logSets.map((val) => val.name).includes(name)) {
+        if (this.logSets.get(name)) {
             throw new Error(`cannot create log set with same name "${name}"`);
         }
-        this.logSets.push(new LogSet(name, this));
+        this.logSets.set(name, new LogSet(name, this));
     }
 
     delLogSet(name: string) {
-        this.logSets = this.logSets.filter((val) => { val.name !== name; });
+        this.logSets.delete(name);
     }
 
 }
 
 export class LogSet extends vscode.TreeItem {
-    private srcs: LogSource[] = [];
-    readonly parent: null = null; // logSet is child of the tree view root, so set parent to undefined
+    private srcs: Map<string, LogSource> = new Map<string, LogSource>();
+    readonly parent: null = null; // logSet is child of the tree view root, so set parent to undefined or null;
+    explorer?: LogSetsExplorer;
+    private entries: LogEntry[] = [];
 
     constructor(
         public name: string,
@@ -77,36 +80,42 @@ export class LogSet extends vscode.TreeItem {
             vscode.TreeItemCollapsibleState.Expanded,
         );
         this.contextValue = "logset";
-    }
-
-    // ui
-    provideTextDocumentContent(uri: vscode.Uri, token: vscode.CancellationToken): vscode.ProviderResult<string> {
-        throw new Error("not implemented");
+        this.explorer = model.explorer;
     }
 
     getChildren(): LogSource[] {
-        return this.srcs;
+        return Array.from(this.srcs.values());
     }
 
     // helpers
     addLogSource(src: LogSource) {
-        if (this.srcs.map((val) => val.uri.toString()).includes(src.uri.toString())) {
+        if (this.srcs.get(src.uri.toString())) {
             throw new Error(`cannot create log set with same uri "${src.uri.toString()}"`);
         }
-        this.srcs.push(src);
+        this.srcs.set(src.uri.toString(), src);
         if (src.onEntryArrived) {
-            src.onEntryArrived(() => { throw new Error("not implemented"); });
+            src.onEntryArrived(this.onEntryArrived, this);
         }
     }
     delLogSource(src: LogSource) {
-        this.srcs = this.srcs.filter((val) => val !== src);
+        this.srcs.delete(src.uri.toString());
     }
 
-    addDoc() {
-
+    get uri(): vscode.Uri {
+        return vscode.Uri.parse(logSetSchema+":"+this.name);
     }
-    delDoc() {
 
+    // 返回文本内容
+    content(): vscode.ProviderResult<string> {
+        debug("content", this.entries.map(e=>e.raw).join("\n"));
+        return this.entries.map(e=>e.raw).join("\n");
+    }
+
+    // onEntryArrived 处理函数
+    // 向文本发送消息
+    onEntryArrived(entries: LogEntry[]) {
+        this.entries = this.entries.concat(entries);
+        this.explorer?.onDidChangeDocDataEmitter.fire(this.uri);
     }
 
     // commands
@@ -118,9 +127,11 @@ export class LogSet extends vscode.TreeItem {
     }
 
     // open a virtual doc.
-    openDoc() {
-
+    async openDoc(): Promise<void> {
+        let doc = await vscode.workspace.openTextDocument(this.uri);
+        await vscode.window.showTextDocument(doc, { preview: false });
     }
+
     // delete itself from logSetsModel.
     dispose(): void { }
 
@@ -149,11 +160,16 @@ export class LogSource extends vscode.TreeItem {
 
     // open file 
     open(): void {
-        throw new Error("not implemented");
+        // throw new Error("not implemented");
     }
 
     close(): void {
         throw new Error("not implemented");
+    }
+
+    // for debug
+    fire(): void {
+        this.onEntryArrivedEmitter.fire([{raw: "hello world"}]);
     }
 
     // commands
