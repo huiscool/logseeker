@@ -1,7 +1,8 @@
 import * as vscode from "vscode";
 import { basename } from "path";
 import { logSetSchema } from "./extension";
-import { debug } from "console";
+import {statSync,createReadStream } from "fs";
+import * as rd from "readline";
 
 
 
@@ -69,7 +70,7 @@ export class LogSet extends vscode.TreeItem {
     private srcs: Map<string, LogSource> = new Map<string, LogSource>();
     readonly parent: null = null; // logSet is child of the tree view root, so set parent to undefined or null;
     explorer?: LogSetsExplorer;
-    private entries: LogEntry[] = [];
+    private content_: string = "";
 
     constructor(
         public name: string,
@@ -107,14 +108,13 @@ export class LogSet extends vscode.TreeItem {
 
     // 返回文本内容
     content(): vscode.ProviderResult<string> {
-        debug("content", this.entries.map(e=>e.raw).join("\n"));
-        return this.entries.map(e=>e.raw).join("\n");
+        return this.content_;
     }
 
     // onEntryArrived 处理函数
     // 向文本发送消息
     onEntryArrived(entries: LogEntry[]) {
-        this.entries = this.entries.concat(entries);
+        this.content_ = this.content_.concat(...entries.map(e=> e.raw ? e.raw : "\n"));
         this.explorer?.onDidChangeDocDataEmitter.fire(this.uri);
     }
 
@@ -141,6 +141,7 @@ export class LogSource extends vscode.TreeItem {
     private onEntryArrivedEmitter = new vscode.EventEmitter<LogEntry[]>();
     onEntryArrived?: vscode.Event<LogEntry[]> = this.onEntryArrivedEmitter.event;
     readonly model: LogSetsModel;
+    private rdIntf? : rd.Interface;
 
     constructor(
         public uri: vscode.Uri,
@@ -158,33 +159,25 @@ export class LogSource extends vscode.TreeItem {
     // treeViews: logSource is a leaf treenode, so getChildren should return null.
     getChildren() { return null; }
     
-    private fs = require('fs');
-    private readline = require('readline');
-    private rd = this.readline.createInterface({
-    input: this.fs.createReadStream(this.uri.path),
-    
-    });
-    // open file 
+    // open file and listen for the appending lines.
     open(): void {
-        this.rd.on('line', (line:any) => {
-            this.outside(line);
-            this.onEntryArrivedEmitter.fire(line);
+        console.log("path:",this.uri.path);
+        let fileLength = statSync(this.uri.path)['size'];
+        let stream = createReadStream(this.uri.path, {
+            start: fileLength,
         });
+        this.rdIntf = rd.createInterface(stream);
+        console.log("stream created");
+        this.rdIntf.on('line', this.onLineArrived);
     }
-    //test
-    outside = function(line:any){
-        console.log('测试数据内容 '+line);
+
+    onLineArrived(line: string) {
+        console.log("onLine arrived", line);
+        this.onEntryArrivedEmitter.fire([{raw: line}]);
     }
 
     close(): void {
-        //关闭文件流，关闭监听
-        this.rd.close();
-        this.onEntryArrivedEmitter.dispose();
-    }
-
-    // for debug
-    fire(): void {
-        this.onEntryArrivedEmitter.fire([{raw: "hello world"}]);
+        this.rdIntf?.close();
     }
 
     // commands

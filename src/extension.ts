@@ -50,7 +50,6 @@ export function activate(context: vscode.ExtensionContext) {
 		}));
 	disposables.push(vscode.commands.registerCommand("logsource.del-logsource", (node: LogSource) => {
 		// debug
-		node.fire();
 	}));
 
 	context.subscriptions.push(...disposables);
