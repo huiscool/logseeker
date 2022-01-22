@@ -51,13 +51,11 @@
         "command": "logset.open-doc",
         "title": "Open a virtual doc related to the log set",
         "icon": "resources/open-doc.svg"
-
       },
       {
         "command": "logset.add-logsource",
         "title": "Add and open a log source in a log set",
         "icon": "resources/add-logsource.svg"
-
       },
       {
         "command": "logsource.del-logsource",
@@ -124,6 +122,6 @@
     "typescript": "^4.4.4"
   },
   "dependencies": {
-    "nanoid": "^3.1.30"
+    "nanoid": "^3.2.0"
   }
 }

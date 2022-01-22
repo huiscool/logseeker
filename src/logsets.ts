@@ -1,8 +1,8 @@
 import * as vscode from "vscode";
 import { basename } from "path";
-import * as rl from "readline";
 import { logSetSchema } from "./extension";
 import { debug } from "console";
+
 
 
 export type TreeNode = LogSet | LogSource;
@@ -157,14 +157,29 @@ export class LogSource extends vscode.TreeItem {
     // ui
     // treeViews: logSource is a leaf treenode, so getChildren should return null.
     getChildren() { return null; }
-
+    
+    private fs = require('fs');
+    private readline = require('readline');
+    private rd = this.readline.createInterface({
+    input: this.fs.createReadStream(this.uri.path),
+    
+    });
     // open file 
     open(): void {
-        // throw new Error("not implemented");
+        this.rd.on('line', (line:any) => {
+            this.outside(line);
+            this.onEntryArrivedEmitter.fire(line);
+        });
+    }
+    //test
+    outside = function(line:any){
+        console.log('测试数据内容 '+line);
     }
 
     close(): void {
-        throw new Error("not implemented");
+        //关闭文件流，关闭监听
+        this.rd.close();
+        this.onEntryArrivedEmitter.dispose();
     }
 
     // for debug
@@ -186,3 +201,4 @@ export interface LogEntry {
     message?: string;
     raw?: string;
 }
+
